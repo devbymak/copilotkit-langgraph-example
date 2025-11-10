@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 
-import { CopilotKit } from "@copilotkit/react-core";
 import "./globals.css";
 import "@copilotkit/react-ui/styles.css";
+import { FakeAuthProvider } from "./components/fake-auth-provider"
+import { UserMenu } from "./components/user-menu"
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -17,9 +18,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={"antialiased"}>
-        <CopilotKit runtimeUrl="/api/copilotkit" agent="sample_agent">
+        <FakeAuthProvider>
           {children}
-        </CopilotKit>
+          <UserMenu />
+        </FakeAuthProvider>
       </body>
     </html>
   );

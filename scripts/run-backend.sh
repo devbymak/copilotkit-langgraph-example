@@ -2,12 +2,15 @@
 
 cd "$(dirname "$0")/../backend" || exit 1
 
+# Use PORT environment variable or default to 8000
+PORT=${PORT:-8000}
+
 # Use venv Python if it exists, otherwise use system Python
 if [ -f ".venv/bin/python" ]; then
-    .venv/bin/python -m uvicorn server:app --host 0.0.0.0 --port 8000 --reload
+    .venv/bin/python -m uvicorn server:app --host 0.0.0.0 --port "$PORT" --reload
 elif [ -f ".venv/Scripts/python.exe" ]; then
-    .venv/Scripts/python.exe -m uvicorn server:app --host 0.0.0.0 --port 8000 --reload
+    .venv/Scripts/python.exe -m uvicorn server:app --host 0.0.0.0 --port "$PORT" --reload
 else
-    python -m uvicorn server:app --host 0.0.0.0 --port 8000 --reload
+    python -m uvicorn server:app --host 0.0.0.0 --port "$PORT" --reload
 fi
 

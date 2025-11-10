@@ -1,9 +1,8 @@
 import os
 from fastapi import FastAPI
 import uvicorn
-from copilotkit import LangGraphAGUIAgent 
 from ag_ui_langgraph import add_langgraph_fastapi_endpoint 
-from agent import graph
+from agent import graph, CustomLangGraphAGUIAgent
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -14,21 +13,21 @@ if not os.getenv("OPENAI_API_KEY"):
     raise ValueError("OPENAI_API_KEY environment variable is required. Please set it in your .env file.")
 
 app = FastAPI()
-add_langgraph_fastapi_endpoint(
-  app=app,
-  agent=LangGraphAGUIAgent(
-    name="sample_agent", # the name of your agent defined in langgraph.json
-    description="Describe your agent here, will be used for multi-agent orchestration",
-    graph=graph, # the graph object from your langgraph import
-  ),
-  path="/", # the endpoint you'd like to serve your agent on
-)
 
-# add new route for health check
+# add new route for health check (must be defined before langgraph endpoint)
 @app.get("/health")
 def health():
     """Health check."""
     return {"status": "ok"}
+
+add_langgraph_fastapi_endpoint(
+  app=app,
+  agent=CustomLangGraphAGUIAgent(
+    name="agent_with_auth", # the name of your agent defined in langgraph.json
+    description="Describe your agent here, will be used for multi-agent orchestration",
+    graph=graph, # the graph object from your langgraph import
+  )
+)
 
 def main():
     """Run the uvicorn server."""

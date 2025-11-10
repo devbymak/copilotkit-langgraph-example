@@ -5,12 +5,12 @@
   "scripts": {
     "dev": "concurrently \"npm run dev:ui\" \"npm run dev:agent\" --names ui,agent --prefix-colors blue,green --kill-others",
     "dev:debug": "LOG_LEVEL=debug npm run dev",
-    "dev:agent": "sh ./scripts/run-backend.sh || scripts\\run-backend.bat",
+    "dev:agent": "sh ./scripts/run-backend.sh || sh ./scripts/run-backend.bat",
     "dev:ui": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "install:agent": "sh ./scripts/setup-agent.sh || scripts\\setup-agent.bat",
+    "install:agent": "sh ./scripts/setup-backend.sh || sh ./scripts/setup-backend.bat",
     "postinstall": "npm run install:agent"
   },
   "dependencies": {

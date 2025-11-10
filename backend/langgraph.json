@@ -1,9 +1,9 @@
 {
-  "python_version": "3.12",
-  "dockerfile_lines": [],
-  "dependencies": ["."],
-  "graphs": {
-    "sample_agent": "./agent.py:graph"
-  },
-  "env": ".env"
+  "version": "0.0.1",
+  "agents": [
+    {
+      "name": "Default Agent",
+      "url": "http://localhost:8001/agent_with_auth"
+    }
+  ]
 }
