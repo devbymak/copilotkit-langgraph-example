@@ -3,6 +3,7 @@
 import { useCoAgent, useCopilotAction } from "@copilotkit/react-core";
 import { CopilotKitCSSProperties, CopilotSidebar } from "@copilotkit/react-ui";
 import { useState } from "react";
+import { Sun, X } from 'lucide-react';
 
 export default function CopilotKitPage() {
   const [themeColor, setThemeColor] = useState("#6366f1");
@@ -104,7 +105,7 @@ function YourMainContent({ themeColor }: { themeColor: string }) {
                 className="absolute right-3 top-3 opacity-0 group-hover:opacity-100 transition-opacity 
                   bg-red-500 hover:bg-red-600 text-white rounded-full h-6 w-6 flex items-center justify-center"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
           ))}
@@ -114,16 +115,6 @@ function YourMainContent({ themeColor }: { themeColor: string }) {
         </p>}
       </div>
     </div>
-  );
-}
-
-// Simple sun icon for the weather card
-function SunIcon() {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-14 h-14 text-yellow-200">
-      <circle cx="12" cy="12" r="5" />
-      <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" strokeWidth="2" stroke="currentColor" />
-    </svg>
   );
 }
 
@@ -141,7 +132,7 @@ function WeatherCard({ location, themeColor }: { location?: string, themeColor: 
             <h3 className="text-xl font-bold text-white capitalize">{location}</h3>
             <p className="text-white">Current Weather</p>
           </div>
-          <SunIcon />
+          <Sun className="w-14 h-14 text-yellow-200" />
         </div>
 
         <div className="mt-4 flex items-end justify-between">
