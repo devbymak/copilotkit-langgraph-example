@@ -1,105 +1,76 @@
-# CopilotKit <> LangGraph Starter
+# CopilotKit <> LangGraph Authentication Example
 
-This is a starter template for building AI agents using [LangGraph](https://www.langchain.com/langgraph) and [CopilotKit](https://copilotkit.ai). It provides a modern Next.js application with an integrated LangGraph agent to be built on top of.
+Secure your LangGraph agents with user authentication. Shows how to:
+
+- 🔐 Authenticate users before agent interaction
+- 🛡️ Secure agent endpoints and tools based on user identity
+- 👤 Access user information within LangGraph agents
+- 🎯 Conditionally enable/disable agent capabilities
 
 ## Prerequisites
 
-- Node.js 18+ 
-- Python 3.8+
-- Any of the following package managers:
-  - [pnpm](https://pnpm.io/installation) (recommended)
-  - npm
-  - [yarn](https://classic.yarnpkg.com/lang/en/docs/install/#mac-stable)
-  - [bun](https://bun.sh/)
-- OpenAI API Key (for the LangGraph agent)
-
-> **Note:** This repository ignores lock files (package-lock.json, yarn.lock, pnpm-lock.yaml, bun.lockb) to avoid conflicts between different package managers. Each developer should generate their own lock file using their preferred package manager. After that, make sure to delete it from the .gitignore.
+- Node.js 18+ & Python 3.8+
+- Package manager (pnpm/npm/yarn/bun)
+- OpenAI API Key
 
 ## Getting Started
 
-1. Install dependencies using your preferred package manager:
+1. Install dependencies:
+
 ```bash
-# Using pnpm (recommended)
-pnpm install
-
-# Using npm
-npm install
-
-# Using yarn
-yarn install
-
-# Using bun
-bun install
+pnpm install  # or npm/yarn/bun install
 ```
 
-> **Note:** Installing the package dependencies will also install the agent's python dependencies via the `install:agent` script.
-
-
 2. Set up your OpenAI API key:
+
 ```bash
-echo 'OPENAI_API_KEY=your-openai-api-key-here' > agent/.env
+echo 'OPENAI_API_KEY=your-api-key' > backend/.env
 ```
 
 3. Start the development server:
+
 ```bash
-# Using pnpm
-pnpm dev
-
-# Using npm
-npm run dev
-
-# Using yarn
-yarn dev
-
-# Using bun
-bun run dev
+pnpm dev  # starts both UI and agent servers
 ```
 
-This will start both the UI and agent servers concurrently.
-
 ## Available Scripts
-The following scripts can also be run using your preferred package manager:
-- `dev` - Starts both UI and agent servers in development mode
-- `dev:debug` - Starts development servers with debug logging enabled
-- `dev:ui` - Starts only the Next.js UI server
-- `dev:agent` - Starts only the LangGraph agent server
-- `build` - Builds the Next.js application for production
-- `start` - Starts the production server
-- `lint` - Runs ESLint for code linting
-- `install:agent` - Installs Python dependencies for the agent
 
-## Documentation
+- `dev` - Start both servers
+- `dev:debug` - Start with debug logging
+- `dev:ui` - Start Next.js server only
+- `dev:agent` - Start LangGraph agent only
+- `install:agent` - Install Python dependencies
 
-The main UI component is in `src/app/page.tsx`. You can:
-- Modify the theme colors and styling
-- Add new frontend actions
-- Customize the CopilotKit sidebar appearance
+## Project Structure
 
-## 📚 Documentation
+- **Frontend** (`src/app/`)
 
-- [LangGraph Documentation](https://langchain-ai.github.io/langgraph/) - Learn more about LangGraph and its features
-- [CopilotKit Documentation](https://docs.copilotkit.ai) - Explore CopilotKit's capabilities
-- [Next.js Documentation](https://nextjs.org/docs) - Learn about Next.js features and API
-- [YFinance Documentation](https://pypi.org/project/yfinance/) - Financial data tools
+  - `page.tsx` - Main UI with authenticated agent
+  - `components/fake-auth-provider.tsx` - Auth provider (replace with real auth)
+  - `components/user-menu.tsx` - Login/logout menu
+  - `api/copilotkit/route.ts` - API route handling auth & forwarding to agent
 
-## Contributing
+- **Backend** (`backend/`)
+  - `agent.py` - LangGraph agent with auth-aware tools
+  - `server.py` - FastAPI server receiving user context
 
-Feel free to submit issues and enhancement requests! This starter is designed to be easily extensible.
+## Authentication Flow
 
-## License
+1. User logs in via frontend auth provider
+2. User identity passed to CopilotKit
+3. CopilotKit forwards user info to agent
+4. Agent tools access user identity and adjust behavior
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+## Implementing Your Own Auth
+
+Replace `fake-auth-provider.tsx` with your auth system (NextAuth.js, Auth0, Clerk, Supabase, etc.)
 
 ## Troubleshooting
 
-### Agent Connection Issues
-If you see "I'm having trouble connecting to my tools", make sure:
-1. The LangGraph agent is running on port 8000
-2. Your OpenAI API key is set correctly
-3. Both servers started successfully
+- **Agent issues**: Check agent is running on port 8000 and OpenAI API key is set in `backend/.env`
+- **Auth issues**: Verify user is logged in and context is passed to CopilotKit
+- **Python errors**: Run `pnpm install:agent`
 
-### Python Dependencies
-If you encounter Python import errors:
-```bash
-npm install:agent
-```
+## License
+
+MIT License
