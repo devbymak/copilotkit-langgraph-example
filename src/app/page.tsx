@@ -5,6 +5,7 @@ import { CopilotKitCSSProperties, CopilotSidebar } from "@copilotkit/react-ui";
 import { useState, useContext, useMemo } from "react";
 import { Sun, X } from 'lucide-react';
 import { AuthContext } from "./components/fake-auth-provider";
+import { CopilotInput } from "./components/copilot-input";
 
 export default function CopilotKitPage() {
   const [themeColor, setThemeColor] = useState("#6366f1");
@@ -49,6 +50,7 @@ export default function CopilotKitPage() {
           title: "Popup Assistant",
           initial: "👋 Hi, there! You're chatting with an agent. This agent comes with a few tools to get you started.\n\nFor example you can try:\n- **Frontend Tools**: \"Set the theme to orange\"\n- **Shared State**: \"Write a proverb about AI\"\n- **Generative UI**: \"Get the weather in SF\" (for authenticated users)\n\nAs you interact with the agent, you'll see the UI update in real-time to reflect the agent's **state**, **tool calls**, and **progress**."
         }}
+        Input={CopilotInput}
       />
     </main>
   );
