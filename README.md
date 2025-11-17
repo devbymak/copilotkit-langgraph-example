@@ -1,4 +1,4 @@
-# CopilotKit <> LangGraph Authentication Example
+# CopilotKit <> LangGraph Integration Example
 
 Secure your LangGraph agents with user authentication. Shows how to:
 
@@ -6,6 +6,7 @@ Secure your LangGraph agents with user authentication. Shows how to:
 - 🛡️ Secure agent endpoints and tools based on user identity
 - 👤 Access user information within LangGraph agents
 - 🎯 Conditionally enable/disable agent capabilities
+- 📁 Upload and process files (PDF, Excel) with the agent
 
 ## Prerequisites
 
@@ -53,6 +54,7 @@ pnpm dev  # starts both UI and agent servers
 - **Backend** (`backend/`)
   - `agent.py` - LangGraph agent with auth-aware tools
   - `server.py` - FastAPI server receiving user context
+  - `file_routes.py` - File upload and processing endpoints
 
 ## Authentication Flow
 
@@ -60,6 +62,24 @@ pnpm dev  # starts both UI and agent servers
 2. User identity passed to CopilotKit
 3. CopilotKit forwards user info to agent
 4. Agent tools access user identity and adjust behavior
+
+## File Upload Support
+
+The agent supports file uploads with automatic processing:
+
+- **PDF Files** - Text extraction with page-by-page content
+- **Excel Files** (.xlsx, .xls) - Sheet parsing, column analysis, and data preview
+
+Files are processed and stored per conversation thread, allowing the agent to:
+- Answer questions about file content
+- Analyze data from uploaded spreadsheets
+- Extract and reference information from documents
+
+File processing endpoints:
+- `/process-file` - Upload and process PDF or Excel files
+- `/files/{thread_id}` - List all uploaded files for a thread
+- `/file/{thread_id}/{file_id}` - Retrieve file content
+- `/file/{thread_id}/{file_id}` (DELETE) - Remove uploaded files
 
 ## Implementing Your Own Auth
 
