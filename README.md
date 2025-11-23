@@ -1,6 +1,6 @@
 # CopilotKit <> LangGraph Integration Example
 
-Secure your LangGraph agents with user authentication. Shows how to:
+Features include:
 
 - 🔐 Authenticate users before agent interaction
 - 🛡️ Secure agent endpoints and tools based on user identity
