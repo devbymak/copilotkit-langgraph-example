@@ -251,10 +251,11 @@ const CopilotInputBase = (props: CopilotChatInputProps) => {
             )}
             <CopilotChatInput
                 {...props}
+                className={`app-chat-input ${props.className ?? ''}`}
                 textArea={{
                     placeholder: uploadedFiles.length > 0
-                        ? `Ask questions about ${uploadedFiles.length} uploaded file${uploadedFiles.length > 1 ? 's' : ''}...`
-                        : "Ask anything or upload files (PDF/Excel/CSV)...",
+                        ? `Ask about ${uploadedFiles.length} file${uploadedFiles.length > 1 ? 's' : ''}...`
+                        : "Ask anything...",
                 }}
                 toolsMenu={[
                     ...(props.toolsMenu ?? []),

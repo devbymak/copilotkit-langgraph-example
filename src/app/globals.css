@@ -22,3 +22,12 @@ body,
 html {
   height: 100%;
 }
+
+/* Tighter chat input in the sidebar (CopilotKit's default spacing is roomy). */
+.app-chat-input > div:first-child {
+  padding-inline: 1rem;
+}
+
+.app-chat-input textarea {
+  padding-block: 0.5rem;
+}
