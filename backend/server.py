@@ -44,7 +44,7 @@ add_langgraph_fastapi_endpoint(
 
 def main():
     """Run the uvicorn server."""
-    port = int(os.getenv("PORT", "8000"))
+    port = int(os.getenv("AGENT_PORT", "8000"))
     uvicorn.run(
         "server:app", # the path to your FastAPI file
         host="0.0.0.0",

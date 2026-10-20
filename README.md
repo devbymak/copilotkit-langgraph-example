@@ -10,7 +10,7 @@ Features include:
 
 ## Prerequisites
 
-- Node.js 18+ & Python 3.8+
+- Node.js 20.9+ & Python 3.10+
 - Package manager (pnpm/npm/yarn/bun)
 - OpenAI API Key
 
@@ -46,10 +46,11 @@ pnpm dev  # starts both UI and agent servers
 
 - **Frontend** (`src/app/`)
 
-  - `page.tsx` - Main UI with authenticated agent
+  - `page.tsx` - Main UI with authenticated agent (CopilotKit v2 hooks: `useAgent`, `useFrontendTool`, `useRenderTool`)
   - `components/fake-auth-provider.tsx` - Auth provider (replace with real auth)
+  - `components/copilot-input.tsx` - Chat input with file upload (wraps the v2 `CopilotChatInput`)
   - `components/user-menu.tsx` - Login/logout menu
-  - `api/copilotkit/route.ts` - API route handling auth & forwarding to agent
+  - `api/copilotkit/[[...slug]]/route.ts` - CopilotKit v2 runtime endpoint forwarding to the agent
 
 - **Backend** (`backend/`)
   - `agent.py` - LangGraph agent with auth-aware tools
@@ -59,9 +60,10 @@ pnpm dev  # starts both UI and agent servers
 ## Authentication Flow
 
 1. User logs in via frontend auth provider
-2. User identity passed to CopilotKit
-3. CopilotKit forwards user info to agent
-4. Agent tools access user identity and adjust behavior
+2. User token passed to CopilotKit via the `properties` prop
+3. CopilotKit forwards it to the agent as AG-UI `forwardedProps`
+4. `CustomLangGraphAGUIAgent` (`backend/agent.py`) merges it into `config.configurable`
+5. Agent tools access user identity and adjust behavior
 
 ## File Upload Support
 
@@ -88,7 +90,7 @@ Replace `fake-auth-provider.tsx` with your auth system (NextAuth.js, Auth0, Cler
 
 ## Troubleshooting
 
-- **Agent issues**: Check agent is running on port 8000 and OpenAI API key is set in `backend/.env`
+- **Agent issues**: Check agent is running on port 8000 (override with `AGENT_PORT`) and OpenAI API key is set in `backend/.env`
 - **Auth issues**: Verify user is logged in and context is passed to CopilotKit
 - **Python errors**: Run `pnpm install:agent`
 

@@ -1,10 +1,9 @@
-
-import { type InputProps } from '@copilotkit/react-ui';
+import { CopilotChatInput, type CopilotChatInputProps } from '@copilotkit/react-core/v2';
 import {
-    useState,
-    useEffect,
+    createContext,
+    useContext,
     useRef,
-    type KeyboardEvent,
+    useState,
 } from 'react';
 
 export type FileUpload = {
@@ -17,27 +16,24 @@ export type FileUpload = {
     fileType: 'pdf' | 'excel' | 'csv';
 };
 
-type CopilotInputWithCallbackProps = InputProps & {
-    uploadedFiles?: FileUpload[];
-    fetchUploadedFiles?: () => Promise<void>;
+type FileUploadContextValue = {
+    uploadedFiles: FileUpload[];
+    fetchUploadedFiles: () => Promise<void>;
     threadId?: string;
 };
 
-export const CopilotInput = ({ onSend, inProgress, uploadedFiles = [], fetchUploadedFiles, threadId }: CopilotInputWithCallbackProps) => {
-    const [text, setText] = useState('');
-    const [isUploading, setIsUploading] = useState(false);
-    const textareaRef = useRef<HTMLTextAreaElement>(null);
-    const fileInputRef = useRef<HTMLInputElement>(null);
+// The chat renders its input through a slot, so the uploaded files are provided
+// via context instead of props. This keeps the input component identity stable,
+// so it isn't remounted (and the draft text lost) whenever the file list changes.
+export const FileUploadContext = createContext<FileUploadContextValue>({
+    uploadedFiles: [],
+    fetchUploadedFiles: async () => {},
+});
 
-    // Auto-resize textarea
-    useEffect(() => {
-        const textarea = textareaRef.current;
-        if (textarea) {
-            textarea.style.height = 'auto';
-            const scrollHeight = textarea.scrollHeight;
-            textarea.style.height = `${scrollHeight}px`;
-        }
-    }, [text]);
+const CopilotInputBase = (props: CopilotChatInputProps) => {
+    const { uploadedFiles, fetchUploadedFiles, threadId } = useContext(FileUploadContext);
+    const [isUploading, setIsUploading] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
@@ -109,7 +105,7 @@ export const CopilotInput = ({ onSend, inProgress, uploadedFiles = [], fetchUplo
             }
         });
 
-        if (fetchUploadedFiles && successCount > 0) {
+        if (successCount > 0) {
             await fetchUploadedFiles();
         }
 
@@ -143,9 +139,7 @@ export const CopilotInput = ({ onSend, inProgress, uploadedFiles = [], fetchUplo
                 method: 'DELETE',
             });
             if (response.ok) {
-                if (fetchUploadedFiles) {
-                    await fetchUploadedFiles();
-                }
+                await fetchUploadedFiles();
             } else {
                 console.error('Failed to delete file');
                 alert('Failed to remove the file. Please try again.');
@@ -156,34 +150,31 @@ export const CopilotInput = ({ onSend, inProgress, uploadedFiles = [], fetchUplo
         }
     };
 
-    const handleSend = async () => {
-        if (!text.trim()) return;
-
-        onSend(text);
-        setText('');
-        // Don't clear uploadedFiles - keep them for future messages
-    };
-
-    const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            handleSend();
+    const openFilePicker = () => {
+        if (!isUploading) {
+            fileInputRef.current?.click();
         }
     };
 
-    const handleContainerClick = () => {
-        textareaRef.current?.focus();
-    };
-
     return (
-        <div className="copilotKitInputContainer">
+        <>
+            <input
+                ref={fileInputRef}
+                type="file"
+                accept="application/pdf,.xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,.csv"
+                onChange={handleFileUpload}
+                className="hidden"
+                multiple
+            />
             {isUploading && (
-                <div className="px-3 py-2 bg-gray-100 rounded-lg mb-2 flex items-center gap-2">
-                    <span className="text-sm text-gray-700">Uploading file(s)...</span>
+                <div className="pointer-events-auto max-w-3xl mx-auto w-full px-4">
+                    <div className="px-3 py-2 bg-gray-100 rounded-lg mb-2 flex items-center gap-2">
+                        <span className="text-sm text-gray-700">Uploading file(s)...</span>
+                    </div>
                 </div>
             )}
             {uploadedFiles.length > 0 && (
-                <div className="flex flex-col gap-2 mb-2">
+                <div className="pointer-events-auto max-w-3xl mx-auto w-full px-4 flex flex-col gap-2 mb-2">
                     {uploadedFiles.map((file) => (
                         <div 
                             key={file.fileId}
@@ -258,75 +249,22 @@ export const CopilotInput = ({ onSend, inProgress, uploadedFiles = [], fetchUplo
                     ))}
                 </div>
             )}
-            <div className="copilotKitInput" onClick={handleContainerClick}>
-                <textarea
-                    ref={textareaRef}
-                    value={text}
-                    onChange={(e) => setText(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder={uploadedFiles.length > 0 ? `Ask questions about ${uploadedFiles.length} uploaded file${uploadedFiles.length > 1 ? 's' : ''}...` : "Create survey questions or upload files (PDF/Excel/CSV)..."}
-                    className="overflow-auto resize-none"
-                    rows={1}
-                    disabled={inProgress}
-                />
-                <div className="copilotKitInputControls">
-                    <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="application/pdf,.xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,.csv"
-                        onChange={handleFileUpload}
-                        className="hidden"
-                        disabled={inProgress}
-                        multiple
-                    />
-                    <button
-                        onClick={() => fileInputRef.current?.click()}
-                        disabled={inProgress || isUploading}
-                        className="copilotKitInputControlButton mr-2"
-                        aria-label="Upload Files"
-                        title="Upload files: PDF, Excel, CSV (multiple files supported)"
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            strokeWidth="1.5"
-                            stroke="currentColor"
-                            width="24"
-                            height="24"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13"
-                            />
-                        </svg>
-                    </button>
-                    <div className="grow"></div>
-                    <button
-                        onClick={handleSend}
-                        disabled={inProgress || !text.trim()}
-                        data-copilotkit-in-progress={inProgress}
-                        className="copilotKitInputControlButton"
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            strokeWidth="1.5"
-                            stroke="currentColor"
-                            width="24"
-                            height="24"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M12 19V5m0 0l-7 7m7-7l7 7"
-                            ></path>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-        </div>
+            <CopilotChatInput
+                {...props}
+                textArea={{
+                    placeholder: uploadedFiles.length > 0
+                        ? `Ask questions about ${uploadedFiles.length} uploaded file${uploadedFiles.length > 1 ? 's' : ''}...`
+                        : "Ask anything or upload files (PDF/Excel/CSV)...",
+                }}
+                toolsMenu={[
+                    ...(props.toolsMenu ?? []),
+                    { label: "Upload files (PDF, Excel, CSV)", action: openFilePicker },
+                ]}
+            />
+        </>
     );
 };
+
+// The chat's `input` slot expects a component shaped like CopilotChatInput,
+// including its sub-components (SendButton, TextArea, ...), so attach them here.
+export const CopilotInput = Object.assign(CopilotInputBase, CopilotChatInput);

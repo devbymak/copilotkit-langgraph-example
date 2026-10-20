@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import "./globals.css";
-import "@copilotkit/react-ui/styles.css";
+import "@copilotkit/react-core/v2/styles.css";
 import { FakeAuthProvider } from "./components/fake-auth-provider"
 import { UserMenu } from "./components/user-menu"
 

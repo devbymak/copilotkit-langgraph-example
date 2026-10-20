@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, ReactNode, createContext, useMemo, useEffect, startTransition } from "react"
-import { CopilotKit } from "@copilotKit/react-core"
+import { CopilotKit } from "@copilotkit/react-core/v2"
 import { FakeUser } from "@/lib/users"
 import { getInitialUser, login as loginUser, logout as logoutUser, generateToken } from "@/lib/auth"
 
@@ -41,19 +41,19 @@ export const FakeAuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(null)
     }
 
-    const headers: Record<string, string> = {};
-    if (token) {
-        headers["Authorization"] = `Bearer ${token}`;
-    }
+    // `properties` are sent to the agent as AG-UI `forwardedProps` on every run.
+    // The Python agent reads `authorization` from there (see backend/agent.py).
+    const properties = useMemo(() => ({ authorization: token }), [token])
 
     return (
         <AuthContext.Provider value={{ user, login: handleLogin, logout: handleLogout, token }}>
             <CopilotKit
                 runtimeUrl="/api/copilotkit"
-                agent="agent_with_auth"
-                properties={{
-                    authorization: token,
-                }}
+                agentId="agent_with_auth"
+                useSingleEndpoint={false}
+                // Hide the CopilotKit dev inspector overlay; set to true to debug agent events.
+                enableInspector={false}
+                properties={properties}
             >
                 {children}
             </CopilotKit>

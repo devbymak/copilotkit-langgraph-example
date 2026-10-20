@@ -2,8 +2,9 @@
 
 cd "$(dirname "$0")/../backend" || exit 1
 
-# Use PORT environment variable or default to 8000
-PORT=${PORT:-8000}
+# Use AGENT_PORT environment variable or default to 8000.
+# (Not PORT: that one is used by Next.js and is often set by hosting tools.)
+PORT=${AGENT_PORT:-8000}
 
 # Use venv Python if it exists, otherwise use system Python
 if [ -f ".venv/bin/python" ]; then
