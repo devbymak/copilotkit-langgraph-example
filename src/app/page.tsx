@@ -77,7 +77,9 @@ function CopilotKitPageContent() {
         ? [{ title: "Get the weather in SF", message: "Get the weather in SF" }]
         : []),
     ],
-    available: "always",
+    // Show the starter suggestions on the welcome screen only. In the chat view
+    // CopilotKit renders them right under the last message, high up in the panel.
+    available: "before-first-message",
   }, [isAuthenticated]);
 
   const fileUploadContext = useMemo(
