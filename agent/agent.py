@@ -3,6 +3,7 @@ This is the main entry point for the agent.
 It defines the workflow graph, state, tools, nodes and edges.
 """
 
+import os
 from typing import Any, List, Dict, Optional
 from typing_extensions import Literal
 from langchain_openai import ChatOpenAI
@@ -249,7 +250,9 @@ async def chat_node(state: AgentState, config: RunnableConfig) -> Command[Litera
     """
 
     # 1. Define the model
-    model = ChatOpenAI(model="gpt-4o")
+    #    OPENAI_MODEL picks the model; OPENAI_BASE_URL (read by the OpenAI client)
+    #    points it at any OpenAI-compatible API instead of api.openai.com.
+    model = ChatOpenAI(model=os.getenv("OPENAI_MODEL", "gpt-4o"))
 
     # Get user information from the state, which was set in the auth_node
     user_data = state.get("authorization")

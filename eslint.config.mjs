@@ -12,7 +12,7 @@ const eslintConfig = [
       "build/**",
       "next-env.d.ts",
       "agent",
-      "backend/.venv/**",
+      "agent/.venv/**",
     ],
   },
 ];

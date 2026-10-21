@@ -41,11 +41,16 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# lock files
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
-bun.lockb
 
 # LangGraph API
 .langgraph_api
+
+venv/
+__pycache__/
+*.pyc
+.env
+.vercel
+
+# python
+.venv/
+.langgraph_api/

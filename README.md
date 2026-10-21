@@ -13,7 +13,8 @@ Features include:
 ## Prerequisites
 
 - Node.js 20.9+
-- Python 3.10+
+- Python 3.12+
+- [uv](https://docs.astral.sh/uv/) (Python package manager)
 - Any of the following package managers:
   - npm (default)
   - [pnpm](https://pnpm.io/installation)
@@ -39,18 +40,25 @@ yarn install
 bun install
 ```
 
-This also creates a Python virtual environment in `backend/.venv` and installs the agent dependencies (`install:agent`).
+This will also install the Python agent dependencies via `uv sync`.
 
 2. Set up your environment variables:
 
 ```bash
-cp backend/.env.example backend/.env
+cp .env.example .env
 ```
 
-Then edit `backend/.env` and add your OpenAI API key:
+Then edit the `.env` file and add your OpenAI API key:
 
 ```bash
 OPENAI_API_KEY=your-openai-api-key-here
+```
+
+To use another model or an OpenAI-compatible API (a proxy, gateway or local server), also set:
+
+```bash
+OPENAI_MODEL=gpt-4o
+OPENAI_BASE_URL=https://your-openai-compatible-api.example.com/v1
 ```
 
 3. Start the development server:
@@ -102,9 +110,9 @@ The main UI component is in `src/app/page.tsx`. You can:
   - `components/copilot-input.tsx` - Chat input with file upload (wraps the v2 `CopilotChatInput`)
   - `components/user-menu.tsx` - Login/logout menu
   - `api/copilotkit/[[...slug]]/route.ts` - CopilotKit v2 runtime endpoint forwarding to the agent
-- **Backend** (`backend/`)
+- **Agent** (`agent/`)
   - `agent.py` - LangGraph agent with auth-aware tools
-  - `server.py` - FastAPI server exposing the agent over AG-UI
+  - `main.py` - FastAPI server exposing the agent over AG-UI
   - `file_routes.py` - File upload and processing endpoints
 
 ### Authentication Flow
@@ -112,10 +120,10 @@ The main UI component is in `src/app/page.tsx`. You can:
 1. The user signs in via the frontend auth provider
 2. The user token is passed to CopilotKit via the `properties` prop
 3. CopilotKit forwards it to the agent as AG-UI `forwardedProps`
-4. `CustomLangGraphAGUIAgent` (`backend/agent.py`) merges it into `config.configurable`
+4. `CustomLangGraphAGUIAgent` (`agent/agent.py`) merges it into `config.configurable`
 5. The agent reads the user identity and enables tools accordingly
 
-To use your own auth, replace `fake-auth-provider.tsx` with your auth system (NextAuth.js, Auth0, Clerk, Supabase, etc.) and verify the token signature in `backend/agent.py`. The demo token is not signed.
+To use your own auth, replace `fake-auth-provider.tsx` with your auth system (NextAuth.js, Auth0, Clerk, Supabase, etc.) and verify the token signature in `agent/agent.py`. The demo token is not signed.
 
 ### File Upload Support
 
@@ -154,7 +162,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 If the agent doesn't respond, make sure:
 
 1. The LangGraph agent is running on port 8000 (override with `AGENT_PORT`)
-2. Your OpenAI API key is set correctly in `backend/.env`
+2. Your OpenAI API key is set correctly in `.env`
 3. Both servers started successfully
 
 ### Authentication Issues
@@ -166,5 +174,6 @@ If the agent says you're not signed in, pick a user from the menu in the top-lef
 If you encounter Python import errors:
 
 ```bash
-npm run install:agent
+cd agent
+uv sync
 ```
