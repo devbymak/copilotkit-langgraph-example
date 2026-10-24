@@ -91,8 +91,11 @@ The following scripts can also be run using your preferred package manager:
 - `dev:agent` - Starts only the LangGraph agent server
 - `build` - Builds the Next.js application for production
 - `start` - Starts the production server
+- `start:agent` - Starts the LangGraph agent server without auto-reload, for production
 - `lint` - Runs ESLint
 - `install:agent` - Installs Python dependencies for the agent
+
+To run in production, build the UI with `build`, then run `start` and `start:agent` side by side.
 
 ## Documentation
 
@@ -112,6 +115,7 @@ The main UI component is in `src/app/page.tsx`. You can:
   - `api/copilotkit/[[...slug]]/route.ts` - CopilotKit v2 runtime endpoint forwarding to the agent
 - **Agent** (`agent/`)
   - `agent.py` - LangGraph agent with auth-aware tools
+  - `auth.py` - Demo token decoding, shared by the agent and file routes
   - `main.py` - FastAPI server exposing the agent over AG-UI
   - `file_routes.py` - File upload and processing endpoints
 
@@ -123,17 +127,17 @@ The main UI component is in `src/app/page.tsx`. You can:
 4. `CustomLangGraphAGUIAgent` (`agent/agent.py`) merges it into `config.configurable`
 5. The agent reads the user identity and enables tools accordingly
 
-To use your own auth, replace `fake-auth-provider.tsx` with your auth system (NextAuth.js, Auth0, Clerk, Supabase, etc.) and verify the token signature in `agent/agent.py`. The demo token is not signed.
+To use your own auth, replace `fake-auth-provider.tsx` with your auth system (NextAuth.js, Auth0, Clerk, Supabase, etc.) and verify the token signature in `agent/auth.py`. The demo token is not signed.
 
 ### File Upload Support
 
-Click **+** in the chat input to upload files. They are processed and stored per conversation thread, so the agent can answer questions about them:
+Signed-in users can click **+** in the chat input to upload files. They are processed and stored per conversation thread and per user, so the agent can answer questions about them:
 
 - **PDF Files** - Text extraction with page-by-page content
-- **Excel Files** (.xlsx, .xls) - Sheet parsing, column analysis, and data preview
+- **Excel Files** (.xlsx) - Sheet parsing, column analysis, and data preview
 - **CSV Files** (.csv) - Data parsing, column analysis, and data preview
 
-File processing endpoints:
+File processing endpoints (all require the user's `Authorization: Bearer <token>` header and only return the caller's own files):
 
 - `POST /process-file` - Upload and process a PDF, Excel, or CSV file
 - `GET /files/{thread_id}` - List all uploaded files for a thread
