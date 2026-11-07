@@ -113,6 +113,7 @@ The main UI component is in `src/app/page.tsx`. You can:
   - `components/copilot-input.tsx` - Chat input with file upload (wraps the v2 `CopilotChatInput`)
   - `components/user-menu.tsx` - Login/logout menu
   - `api/copilotkit/[[...slug]]/route.ts` - CopilotKit v2 runtime endpoint forwarding to the agent
+  - `api/agent-files/[...path]/route.ts` - Forwards file uploads and lookups to the agent (follows `AGENT_URL`)
 - **Agent** (`agent/`)
   - `agent.py` - LangGraph agent with auth-aware tools
   - `auth.py` - Demo token decoding, shared by the agent and file routes
@@ -127,6 +128,8 @@ The main UI component is in `src/app/page.tsx`. You can:
 4. `CustomLangGraphAGUIAgent` (`agent/agent.py`) merges it into `config.configurable`
 5. The agent reads the user identity and enables tools accordingly
 
+Each conversation belongs to the first user who signs in on it: the agent refuses to continue another user's thread, and the UI starts a new conversation when a signed-in user signs out or switches users.
+
 To use your own auth, replace `fake-auth-provider.tsx` with your auth system (NextAuth.js, Auth0, Clerk, Supabase, etc.) and verify the token signature in `agent/auth.py`. The demo token is not signed.
 
 ### File Upload Support
@@ -134,10 +137,12 @@ To use your own auth, replace `fake-auth-provider.tsx` with your auth system (Ne
 Signed-in users can click **+** in the chat input to upload files. They are processed and stored per conversation thread and per user, so the agent can answer questions about them:
 
 - **PDF Files** - Text extraction with page-by-page content
-- **Excel Files** (.xlsx) - Sheet parsing, column analysis, and data preview
-- **CSV Files** (.csv) - Data parsing, column analysis, and data preview
+- **Excel Files** (.xlsx) - Sheet parsing, column names, and all rows
+- **CSV Files** (.csv) - Column names and all rows
 
-File processing endpoints (all require the user's `Authorization: Bearer <token>` header and only return the caller's own files):
+Excel and CSV content is kept in full, up to about 50,000 characters per file, so the agent can answer questions about any row.
+
+File processing endpoints on the agent server (the browser reaches them through `/api/agent-files`; all require the user's `Authorization: Bearer <token>` header and only return the caller's own files):
 
 - `POST /process-file` - Upload and process a PDF, Excel, or CSV file
 - `GET /files/{thread_id}` - List all uploaded files for a thread
